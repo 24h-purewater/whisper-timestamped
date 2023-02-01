@@ -1,5 +1,5 @@
 import torch
-import whisper
+import whisper_timestamped as whisper
 import os
 import base64
 from io import BytesIO
@@ -9,7 +9,7 @@ from io import BytesIO
 def init():
     global model
     
-    model = whisper.load_model("base")
+    model = whisper.load_model("base.en")
 
 # Inference is ran for every server call
 # Reference your preloaded global model variable here.
@@ -25,9 +25,12 @@ def inference(model_inputs:dict) -> dict:
     with open('input.mp3','wb') as file:
         file.write(mp3Bytes.getbuffer())
     
+    audio = whisper.load_audio("input.mp3")
     # Run the model
-    result = model.transcribe("input.mp3")
-    output = {"text":result["text"]}
+    # result = whisper.transcribe(model, audio, plot_word_alignment=True)
+    result = whisper.transcribe(model, audio)
+    # See: https://github.com/linto-ai/whisper-timestamped#example-output
+    output = result
     os.remove("input.mp3")
     # Return the results as a dictionary
     return output
